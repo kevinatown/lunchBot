@@ -18,6 +18,14 @@ module.exports = function(controller) {
         triggers: 0,
         convos: 0,
     }
+    
+    const shameSomeone = (maxShames, name, times, message, bot) => {
+      bot.reply(message, `*SHAME ${name}*`);
+      times++;
+      if (times < maxShames-1) {
+        setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+      }
+    }
 
     controller.on('heard_trigger', function() {
         stats.triggers++;
@@ -56,13 +64,30 @@ module.exports = function(controller) {
         }
     });
   
-    controller.hears('((i|im|i\'m|me)[\ ]+)+(?:[(?:\w+)(?:\s+)]+)*(hungry[!]?)(?:[(?:\w+)(?:\s+)]+)*', 'direct_message,direct_mention', function(bot, message) { 
+    controller.hears('((i|im|i\'m|me)[\ ]+)+(?:[(?:\w+)(?:\s+)]+)*(hungry[!]?)(?:[(?:\w+)(?:\s+)]+)*', 'direct_message,direct_mention,ambient,mention', function(bot, message) { 
       if (message.match[1] && _.trim(_.toLower(message.match[1])) === 'me') {
-        console.log('me me me')  
         bot.reply(message, '_You hungry. Me lunchbot_ :dealwithittrump:');
       } else if (message.match[1]) {
           bot.reply(message, '_Hi hungry I\'m lunchbot_ :dealwithittrump:');      
       }
+    });
+  
+    
+    controller.hears([new RegExp(/^shame (<@[A-Z0-9]*>)(\s\d)?/i)], 'direct_message,direct_mention,ambient,mention', function(bot, message) {
+        if (message.match[1] && message.match[1] !== '<@UAUUZAUCD>') {
+          const times = 0;
+          const name = message.match[1];
+          const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
+          bot.reply(message, `*SHAME ${name}*`);
+          setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+        } else if (message.match[1] && message.match[1] === '<@UAUUZAUCD>') {
+          const times = 0;
+          const name = `<@${message.event.user}>`;
+          const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
+          bot.reply(message, `*HAHA NICE TRY! ${name}*`);
+          bot.reply(message, `*SHAME ${name}*`);
+          setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+        }
     });
 
 
