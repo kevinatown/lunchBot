@@ -11,6 +11,7 @@ respond immediately with a single line response.
 
 var wordfilter = require('wordfilter');
 var _ = require('lodash');
+var moment = require('moment');
 module.exports = function(controller) {
 
     /* Collect some very simple runtime stats for use in the uptime/debug command */
@@ -60,8 +61,9 @@ module.exports = function(controller) {
         'https://media.giphy.com/media/werVqqNW4mixG/giphy.gif',
         'https://media.giphy.com/media/AeWntMyxGFXXi/source.gif'
       ];
-      console.log(_.sample(pizzas));
-      bot.reply(message, `${_.sample(pizzas)}`);   
+      if (moment().day() === 5) {
+        bot.reply(message, `${_.sample(pizzas)}`);   
+      }
     });
 
     controller.hears(['^uptime','^debug'], 'direct_message,direct_mention', function(bot, message) {
