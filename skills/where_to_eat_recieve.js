@@ -11,17 +11,27 @@ module.exports = function(controller) {
           // console.log(message.actions[0].value, _.unescape(message.actions[0].value));
           const curVote = _.find(reply.attachments, (x) => x.actions[0].value === message.actions[0].value);
           if (curVote) {  
-            let count = parseInt(curVote.text, 10);
-            curVote.text = count+= 1;
             const footer = curVote.footer ? `${curVote.footer}, ` : '';
-            curVote.footer = `${footer}${person}`
+            if (footer.indexOf(person) > -1) {
+              reply.attachments.push(
+                    {
+                        text: `${person} don't be greedy you already voted for ${_.unescape(message.actions[0].name)}`,
+                    }
+                );
+              bot.replyInteractive(message, reply);
+            } else {
+              curVote.footer = `${footer}${person}`
+              let count = parseInt(curVote.text, 10);
+              curVote.text = count+= 1;
 
-            reply.attachments.push(
-                  {
-                      text: person + ' voted: ' + _.unescape(message.actions[0].name),
-                  }
-              );
-            bot.replyInteractive(message, reply);
+
+              reply.attachments.push(
+                    {
+                        text: person + ' voted: ' + _.unescape(message.actions[0].name),
+                    }
+                );
+              bot.replyInteractive(message, reply);
+            }
           } else {
             reply.attachments.push(
                   {
