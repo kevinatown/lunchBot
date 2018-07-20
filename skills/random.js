@@ -6,8 +6,6 @@ Botkit Studio Skill module to enhance the "where_to_eat" script
 
 var request = require('request');
 var _ = require('lodash');
-var { botShouldAnswer } = require('../utils/restrict.js');
-
 module.exports = function(controller) {
     // define a before hook
     // you may define multiple before hooks. they will run in the order they are defined.

@@ -6,8 +6,6 @@ Pizza day commands
 
 var _ = require('lodash');
 var moment = require('moment');
-var { botShouldAnswer } = require('../utils/restrict.js');
-
 module.exports = function(controller) {
   const pizzas = [
     'https://media.giphy.com/media/aCKMaeduKfFXG/giphy.gif',
@@ -35,7 +33,7 @@ module.exports = function(controller) {
   ];
 
   controller.hears([new RegExp(/((?<!not )pizza)/i)], 'ambient,mention', function(bot, message) {
-    if (botShouldAnswer(message) && moment().day() === 5) {
+    if (moment().day() === 5) {
       bot.reply(message, `${_.sample(pizzas)}`);   
     }
   });
