@@ -12,7 +12,7 @@ respond immediately with a single line response.
 var wordfilter = require('wordfilter');
 var _ = require('lodash');
 var moment = require('moment');
-var { stats, formatUptime } = require('../utils/uptime_fn.js')l
+var { stats, formatUptime } = require('../utils/uptime_fn.js');
 
 module.exports = function(controller) {
 
