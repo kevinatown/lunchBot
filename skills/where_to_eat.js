@@ -7,24 +7,28 @@ Botkit Studio Skill module to enhance the "where_to_eat" script
 var request = require('request');
 var _ = require('lodash');
 var moment = require('moment');
+const { botShouldAnswer } = require('./utils/restrict.js');
+
 module.exports = function(controller) {
     // define a before hook
     // you may define multiple before hooks. they will run in the order they are defined.
     // See: https://botkit.ai/docs/readme-studio.html#controllerstudiobefore
-    controller.studio.before('where_to_eat', function(convo, next) {  
-      const lunchSheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TxkIFQRyrioIDnDKaHNny_F8_fopw7ijjC1VpoPFU2g/values/Sheet1!A1:A100?majorDimension=COLUMNS&key=AIzaSyD1FFpC5oIZaZ3TJ11IcH4I_B55cejsSow';
-      request(lunchSheetUrl, function (error, response, body) {
-        let choices = [];
-        if (response && response.statusCode === 200) {
-          choices = _.sampleSize(_.filter(_.get(JSON.parse(body), 'values[0]'), (x) => x !== ''), 3);
-        }
-        // controller.storage.channels.save({id: 'where_to_eat', date: moment(), choices }, (err) => console.log(err));
-        // console.log(_.unescape(_.get(choices, '0')), _.unescape(_.get(choices, '1')), _.unescape(_.get(choices, '2')))
-        convo.setVar('choice1', { name: _.unescape(_.get(choices, '0')), votes: 0, id: `choice_${_.uniqueId()}` });
-        convo.setVar('choice2', { name: _.unescape(_.get(choices, '1')), votes: 0, id: `choice_${_.uniqueId()}` });
-        convo.setVar('choice3', { name: _.unescape(_.get(choices, '2')), votes: 0, id: `choice_${_.uniqueId()}` });
-        next();
-      });
+    controller.studio.before('where_to_eat', function(convo, next) {
+      if( botShouldAnswer() ) {
+        const lunchSheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TxkIFQRyrioIDnDKaHNny_F8_fopw7ijjC1VpoPFU2g/values/Sheet1!A1:A100?majorDimension=COLUMNS&key=AIzaSyD1FFpC5oIZaZ3TJ11IcH4I_B55cejsSow';
+        request(lunchSheetUrl, function (error, response, body) {
+          let choices = [];
+          if (response && response.statusCode === 200) {
+            choices = _.sampleSize(_.filter(_.get(JSON.parse(body), 'values[0]'), (x) => x !== ''), 3);
+          }
+          // controller.storage.channels.save({id: 'where_to_eat', date: moment(), choices }, (err) => console.log(err));
+          // console.log(_.unescape(_.get(choices, '0')), _.unescape(_.get(choices, '1')), _.unescape(_.get(choices, '2')))
+          convo.setVar('choice1', { name: _.unescape(_.get(choices, '0')), votes: 0, id: `choice_${_.uniqueId()}` });
+          convo.setVar('choice2', { name: _.unescape(_.get(choices, '1')), votes: 0, id: `choice_${_.uniqueId()}` });
+          convo.setVar('choice3', { name: _.unescape(_.get(choices, '2')), votes: 0, id: `choice_${_.uniqueId()}` });
+          next();
+        });
+      }   
     });
 
     /* Validators */

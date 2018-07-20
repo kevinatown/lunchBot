@@ -13,7 +13,7 @@ var wordfilter = require('wordfilter');
 var _ = require('lodash');
 var moment = require('moment');
 var { botShouldAnswer } = require('../utils/restrict.js');
-var { stats, formatUptime } = require('../utils/uptime_fn.js')l
+var { stats, formatUptime } = require('../utils/uptime_fn.js');
 
 module.exports = function(controller) {
 
@@ -36,57 +36,67 @@ module.exports = function(controller) {
   });
 
   controller.hears(['^uptime','^debug'], 'direct_message,direct_mention', function(bot, message) {
-    bot.createConversation(message, function(err, convo) {
-      if (!err) {
-        convo.setVar('uptime', formatUptime(process.uptime()));
-        convo.setVar('convos', stats.convos);
-        convo.setVar('triggers', stats.triggers);
+    if (botShouldAnswer(message)) {  
+      bot.createConversation(message, function(err, convo) {
+        if (!err) {
+          convo.setVar('uptime', formatUptime(process.uptime()));
+          convo.setVar('convos', stats.convos);
+          convo.setVar('triggers', stats.triggers);
 
-        convo.say('My main process has been online for {{vars.uptime}}. Since booting, I have heard {{vars.triggers}} triggers, and conducted {{vars.convos}} conversations.');
-        convo.activate();
-      }
-    });
+          convo.say('My main process has been online for {{vars.uptime}}. Since booting, I have heard {{vars.triggers}} triggers, and conducted {{vars.convos}} conversations.');
+          convo.activate();
+        }
+      });
+    }
   });
 
   controller.hears(['^say (.*)','^say'], 'direct_message,direct_mention', function(bot, message) {
-    if (message.match[1]) {
-      if (!wordfilter.blacklisted(message.match[1])) {
-        bot.reply(message, message.match[1]);
+    if (botShouldAnswer(message)) {
+      if (message.match[1]) {
+        if (!wordfilter.blacklisted(message.match[1])) {
+          bot.reply(message, message.match[1]);
+        } else {
+          bot.reply(message, '_sigh_');
+        }
       } else {
-        bot.reply(message, '_sigh_');
+        bot.reply(message, 'I will repeat whatever you say.')
       }
-    } else {
-      bot.reply(message, 'I will repeat whatever you say.')
     }
   });
 
   controller.hears('((i|im|i\'m|me)[\ ]+)+(?:[(?:\w+)(?:\s+)]+)*(hungry[!]?)(?:[(?:\w+)(?:\s+)]+)*', 'direct_message,direct_mention,ambient,mention', function(bot, message) { 
-    if (message.match[1] && _.trim(_.toLower(message.match[1])) === 'me') {
-      bot.reply(message, '_You hungry. Me lunchbot_ :dealwithittrump:');
-    } else if (message.match[1]) {
-      bot.reply(message, '_Hi hungry I\'m lunchbot_ :dealwithittrump:');      
+    if (botShouldAnswer(message)) {  
+      if (message.match[1] && _.trim(_.toLower(message.match[1])) === 'me') {
+        bot.reply(message, '_You hungry. Me lunchbot_ :dealwithittrump:');
+      } else if (message.match[1]) {
+        bot.reply(message, '_Hi hungry I\'m lunchbot_ :dealwithittrump:');      
+      }
     }
   });
   
   controller.hears([new RegExp(/^shame (<@[A-Z0-9]*>)(\s\d)?/i)], 'direct_message,direct_mention,ambient,mention', function(bot, message) {
-    if (message.match[1] && message.match[1] !== '<@UAUUZAUCD>') {
-      const times = 0;
-      const name = message.match[1];
-      const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
-      bot.reply(message, `*SHAME ${name}*`);
-      setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
-    } else if (message.match[1] && message.match[1] === '<@UAUUZAUCD>') {
-      const times = 0;
-      const name = `<@${message.event.user}>`;
-      const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
-      bot.reply(message, `*HAHA NICE TRY! ${name}*`);
-      bot.reply(message, `*SHAME ${name}*`);
-      setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+    if (botShouldAnswer(message)) {  
+      if (message.match[1] && message.match[1] !== '<@UAUUZAUCD>') {
+        const times = 0;
+        const name = message.match[1];
+        const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
+        bot.reply(message, `*SHAME ${name}*`);
+        setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+      } else if (message.match[1] && message.match[1] === '<@UAUUZAUCD>') {
+        const times = 0;
+        const name = `<@${message.event.user}>`;
+        const maxShames = message.match[2] ? parseInt(_.trim(message.match[2]), 10) : 3;
+        bot.reply(message, `*HAHA NICE TRY! ${name}*`);
+        bot.reply(message, `*SHAME ${name}*`);
+        setTimeout(() => shameSomeone(maxShames, name, times, message, bot), 1000);
+      }
     }
   });
 
   controller.hears([new RegExp(/(lunchbot)/i)], 'ambient,mention', function(bot, message) {
-    bot.reply(message, `*SPEAK MORTAL FOR I AM THE TRUE LUNCHBOT*`);    
+    if (botShouldAnswer(message)) {  
+      bot.reply(message, `*SPEAK MORTAL FOR I AM THE TRUE LUNCHBOT*`); 
+    }   
   });
 
 };
