@@ -137,9 +137,9 @@ module.exports = function(controller) {
         }
     });
   
-  controller.hears([new RegExp(/(lunchbot)/i)], 'ambient,mention', function(bot, message) {
-    bot.reply(message, `*SPEAK MORTAL FOR I AM THE TRUE LUNCHBOT*`);    
-  });
+    controller.hears([new RegExp(/(lunchbot)/i)], 'ambient,mention', function(bot, message) {
+      bot.reply(message, `*SPEAK MORTAL FOR I AM THE TRUE LUNCHBOT*`);    
+    });
   
   
 
